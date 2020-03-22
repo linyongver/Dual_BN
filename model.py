@@ -77,7 +77,7 @@ class NNmodel(BasicModel):
             self.hidden_size,
             self.num_classes).to(self.device)
         self.criterion=nn.CrossEntropyLoss()
-        self.optimizer=torch.optim.SGD(
+        self.optimizer=torch.optim.Adam(
             self.model.parameters(), lr=self.learning_rate)
 
     def train_model(self, num_epochs,batch_size,learning_rate):
@@ -147,10 +147,10 @@ class NNDualBNModel(NNmodel):
         self.dual_model=self.dual_net(
             self.hidden_size).to(self.device)
         self.criterion=nn.CrossEntropyLoss()
-        self.optimizer_nn= torch.optim.SGD(
+        self.optimizer_nn= torch.optim.Adam(
             self.model.parameters(),
             lr=self.learning_rate)
-        self.optimizer_dual=torch.optim.SGD(
+        self.optimizer_dual=torch.optim.Adam(
             self.dual_model.parameters(),
             lr=self.learning_rate* 10)
 
@@ -159,10 +159,10 @@ class NNDualBNModel(NNmodel):
             self.optimizer_nn.param_groups[i]['lr'] *= shrink_rate
         for i in range(len(self.optimizer_dual.param_groups)):
             self.optimizer_dual.param_groups[i]['lr'] *= shrink_rate
-        # self.optimizer_nn = torch.optim.SGD(
+        # self.optimizer_nn = torch.optim.Adam(
         # self.model.parameters(),
         # lr=self.learning_rate* shrink_rate)
-        # self.optimizer_dual=torch.optim.SGD(
+        # self.optimizer_dual=torch.optim.Adam(
         # self,dual_model.parameters(),
         # lr=self.learning_rate)
 

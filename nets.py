@@ -12,8 +12,8 @@ class NeuralNet(nn.Module):
         self.ll_bias=Parameter(torch.Tensor(hidden_size))
         self.relu=nn.ReLU()
         self.bn=nn.BatchNorm1d(num_features=hidden_size)
-        self.fc2=nn.Linear(hidden_size,num_classes)
         self.fc1 =nn.Linear(input_size,hidden_size)
+        self.fc2=nn.Linear(hidden_size,num_classes)
 
     def first_layer_precess(self,x):
         self.out_l1=self.fc1(x)
@@ -33,9 +33,26 @@ class NeuralNetTorchNorm(NeuralNet):
         self.out_l1=self.fc1(x)
         self.out_rll=self.relu(self.bn(self.out_l1))
 
-class NeuralNetDualNorm(NeuralNet):
+class NeuralNetDualNorm(nn.Module):
     def __init__(self,input_size,hidden_size,num_classes):
-        super(NeuralNetDualNorm,self).__init__(input_size,hidden_size,num_classes)
+        super(NeuralNetDualNorm,self).__init__()
+        self.l1_weight=Parameter(torch.Tensor(hidden_size,input_size))
+        self.ll_bias=Parameter(torch.Tensor(hidden_size))
+        self.relu=nn.ReLU()
+        self.bn=nn.BatchNorm1d(num_features=hidden_size)
+
+        self.fc1 =nn.Linear(input_size,hidden_size)
+        self.fc2=nn.Linear(hidden_size,num_classes)
+
+        self.b_ = Parameter(torch.Tensor(hidden_size))
+        self.gamma_ = Parameter(torch.Tensor(hidden_size))
+        self.c_ = Parameter(torch.Tensor(hidden_size))        
+
+    def forward(self,x):
+        self.out_l1=self.relu(self.fc1(x)) - self.b_
+        # need to debug size because of batch
+        self.out_last= self.fc2(self.out_rl1)
+        return self.out_last
 
 class DualParaNet(nn.Module):
     def __init__(self,neural_size):
