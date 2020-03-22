@@ -77,7 +77,7 @@ class NNmodel(BasicModel):
             self.hidden_size,
             self.num_classes).to(self.device)
         self.criterion=nn.CrossEntropyLoss()
-            self.optimizer=torch.optim.SGD(
+        self.optimizer=torch.optim.SGD(
             self.model.parameters(), lr=self.learning_rate)
 
     def train_model(self, num_epochs,batch_size,learning_rate):
@@ -103,10 +103,10 @@ class NNmodel(BasicModel):
                 self.loss.backward()
                 self.optimizer.step()
                 if(i+1)%100==0:
-                print('Epoch [{}/{}],Step [{}/{}],Loss:{:.4f}'.format(epoch+1,num_epochs,i+1,total_step,self.loss.item()))
+                    print('Epoch [{}/{}],Step [{}/{}],Loss:{:.4f}'.format(epoch+1,num_epochs,i+1,total_step,self.loss.item()))
                 self.register_result(
                     names=["epoch","num_epochs","step","total_step","loss","acc"],
-                    values=[epoch+1,num_epochs,i+1,total step,round(self.loss.item(),4),np.nan])
+                    values=[epoch+1,num_epochs,i+1,total_step,round(self.loss.item(),4),np.nan])
   
     def eval_acc(self,data_loader):
         with torch.no_grad():
@@ -135,30 +135,30 @@ class NNTorchBNModel(NNmodel):
 
 class NNDualBNModel(NNmodel):
     def __init__(self,input_size,hidden_size,num_classes):
-        Super(NNDualBNModel,self).__init__(
+        super(NNDualBNModel,self).__init__(
             input_size,hidden_size,num_classes)  
 
     def build_model(self):
-        self.net,self.dual_net=get_net(bn_type="dual_bn")
+        self.net, self.dual_net=get_net(bn_type="dual_bn")
         self.model=self.net(
             self.input_size,
             self.hidden_size,
             self.num_classes).to(self.device)
         self.dual_model=self.dual_net(
-        self.hidden_size).to(self.device)
+            self.hidden_size).to(self.device)
         self.criterion=nn.CrossEntropyLoss()
         self.optimizer_nn= torch.optim.SGD(
             self.model.parameters(),
-            lr=self,learning_rate)
+            lr=self.learning_rate)
         self.optimizer_dual=torch.optim.SGD(
             self.dual_model.parameters(),
             lr=self.learning_rate* 10)
 
     def lr_shrink(self,shrink_rate):
         for i in range(len(self.optimizer_nn.param_groups)):
-        self.optimizer_nn.param_groupslill'lr'] *= shrink_rate
+            self.optimizer_nn.param_groups[i]['lr'] *= shrink_rate
         for i in range(len(self.optimizer_dual.param_groups)):
-        self.optimizer_dual.param_groups[i]['lr'] *= shrink_rate
+            self.optimizer_dual.param_groups[i]['lr'] *= shrink_rate
         # self.optimizer_nn = torch.optim.SGD(
         # self.model.parameters(),
         # lr=self.learning_rate* shrink_rate)
@@ -168,25 +168,22 @@ class NNDualBNModel(NNmodel):
 
     def eval_distribution(self,data_loader):
         hidden_list=[]
-        clip_num=0 #len(data_loader)//3
-        def eval_distribution(self,data_loader):
-            hidden_list=[]
-            clip_num=0# len(data_loader)//3
-            for i,(images,labels)in enumerate(data_loader):
-                images=self.tmp_images
-                labels= self.tmp_labels
-                images=images.reshape(-1,28*28).to(self.device)
-                labels=labels.to(self.device)
-                outputs= self.model(images)
-                epr_loss =self.criterion(outputs,labels)
-                hidden_list.append(self.model.out_l1)
-                if i>= clip_num:
-                    break
-                fullcat = torch.cat([x for x in hidden_list],dim=0)
-                mean_var_df = pd.DataFrame({
-                    "mean":torch.mean(fullcat,dim=0).data,
-                    "var":torch.mean(fullcat**2,dim=0).data
-                })
+        clip_num=0# len(data_loader)//3
+        for i,(images,labels)in enumerate(data_loader):
+            images=self.tmp_images
+            labels= self.tmp_labels
+            images=images.reshape(-1,28*28).to(self.device)
+            labels=labels.to(self.device)
+            outputs= self.model(images)
+            epr_loss =self.criterion(outputs,labels)
+            hidden_list.append(self.model.out_l1)
+            if i>= clip_num:
+                break
+        fullcat = torch.cat([x for x in hidden_list],dim=0)
+        mean_var_df = pd.DataFrame({
+            "mean":torch.mean(fullcat,dim=0).data,
+            "var":torch.mean(fullcat**2,dim=0).data
+        })
         return mean_var_df["mean"].mean(),mean_var_df["var"].mean()
 
     def train_model(self,num_epochs,batch_size,learning_rate):
@@ -194,7 +191,7 @@ class NNDualBNModel(NNmodel):
         # batch _size=100
         # learning_rate=0.001
         self.num_epochs=num_epochs
-        self.batch_size=batch size
+        self.batch_size=batch_size
         self.learning_rate=learning_rate
         self.load_data()
         self.build_model()
@@ -212,7 +209,7 @@ class NNDualBNModel(NNmodel):
                 images = self.tmp_images
                 labels= self.tmp_labels
                 images =images.reshape(-1,28*28).to(self.device)
-                labels=.labels.to(self.device)
+                labels= labels.to(self.device)
                 # Forward pass
                 # outputs= self.model(images)
                 # self.epr_loss= self.criterion(outputs,labels)
@@ -243,7 +240,7 @@ class NNDualBNModel(NNmodel):
                     hidden_var_list=((self.model.out_l1**2).mean(dim=0).data).numpy().tolist()
                     hidden_var_names=["hidden_var_%s"%i for i in range(len(hidden_var_list))]
                     lambda_list=(self.dual_model.lambda_.data).numpy().tolist()
-                    lamnbda_names=["lambda_%s"%i for i in range(len(lambda_list))]
+                    lambda_names=["lambda_%s"%i for i in range(len(lambda_list))]
                     hoop_names=["type","dataset","epoch","num_epochs","step","total_step"]
                     hoop_list=["hidden_state","train",epoch+1,num_epochs,i+1,total_step]
                     self.register_result(
@@ -258,9 +255,9 @@ class NNDualBNModel(NNmodel):
                     self.register_result(
                         names=["type","dataset","epoch","num_epochs","step","total_step","mean","var"],
                         values=["eval_dist","train",epoch+1,num_epochs,i+1,total_step,mean,var])
-                    if i%10=0:
+                    if i%10==0:
                         print(
-                            'Epoch [{}/{}],Step [{/{}],Loss_epr:{:.4f},Loss_cnstr:{:.4f},'
+                            'Epoch [{}/{}],Step [{}/{}],Loss_epr:{:.4f},Loss_cnstr:{:.4f},'
                             .format(epoch+1,num_epochs,i+1,total_step,self.epr_loss,self.dual_loss.data))
                         print("mean=%.4f,var=%.4f,acc=%.4f"%(mean,var,acc))
                     self.write_result()
