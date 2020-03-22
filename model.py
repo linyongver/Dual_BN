@@ -39,12 +39,12 @@ class NNmodel(BasicModel):
 
     def load_data(self):
         self.train_dataset=torchvision.datasets.MNIST(
-            root='../../data',
+            root='data',
             train=True,
             transform=transforms.ToTensor(),
             download=True)
         self.test_dataset=torchvision.datasets.MNIST(
-            root='../../data',
+            root='data',
             train=False,
             transform=transforms.ToTensor())
         self.train_loader=torch.utils.data.DataLoader(
