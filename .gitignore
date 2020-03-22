@@ -1,5 +1,6 @@
 draft
 Daul_BN
+*.ipynb
 *.pyc
 results
 data

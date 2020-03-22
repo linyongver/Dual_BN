@@ -113,8 +113,8 @@ class NNmodel(BasicModel):
             correct=0
             total=0
             for images,labels in data_loader:
-                self.images=images
-                self.labels=labels
+                images = self.tmp_images
+                labels = self.tmp_labels
                 images=images.reshape(-1,28*28).to(self.device)
                 labels=labels.to(self.device)
                 outputs= self.model(images)

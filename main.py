@@ -17,7 +17,7 @@ def get_model(bn_type):
     elif bn_type=="torch_bn":
         return model.NNTorchBNModel
     elif bn_type=="dual_bn":
-        return model.NNDuaLBNModel
+        return model.NNDualBNModel
     else:
         raise NotImplementedError
 
